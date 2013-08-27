@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Chat with JSON!</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="jquery-1.9.1.js"></script>
+    <script src="underscore.js"></script>
+    <script src="backbone.js"></script>
+    <script src="backboneChat.js"></script>
+  </head>
+  <body>
+    <form>
+      <input type="text"></input>
+    </form>
+    <script>
+        $(document).ready(function(){
+          $('form').on('submit', function(e){
+            e.preventDefault();
+            var message = $('input').val();
+            $.ajax('http://127.0.0.1:8080/1/classes/messages', {
+              type: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({text: message})
+            });
+            $('input').val('');
+          })
+          Messages.getMessages();
+          setInterval(function(){
+            Messages.getMessages()
+          }, 5000);
+        })
+    </script>
+  </body>
+</html>
