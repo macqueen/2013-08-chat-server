@@ -6,17 +6,41 @@
 
 /* This is the callback function that will be called each time a
  * client (i.e.. a web browser) makes a request to our server. */
-
+//var results = require("./basic-server.js");
+var results = [];
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
   var statusCode = 200;
+  //console.log(request.data);
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "text/plain";
   response.writeHead(statusCode, headers);
+  // if request.method is POST --> save to results
+  // if request.method is GET --> return results
   if(request.url === "/1/classes/messages") {
-    response.end("great job");
-  }else{
-    response.end('your request makes no sense to me');
+    if (request.method === "OPTIONS") {
+      response.end();
+    }
+    else if (request.method === 'POST') {
+      var body = '';
+      request.on('data', function(data) {
+        body += data;
+      });
+      request.on('end', function() {
+        var text = JSON.parse(body);
+        results.push(text);
+        response.end();
+      });
+    } else if (request.method === 'GET') {
+      if (!results.length) {
+        response.end();
+      } else {
+      response.end(results[0]);
+      //response.end();
+      }
+    }
+  } else {
+    response.end('you didnt do anything');
   }
 
 };
