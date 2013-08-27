@@ -13,9 +13,11 @@ var handleRequest = function(request, response) {
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "text/plain";
-  response.writeHead(statusCode, headers);
-  if(request.url === "/1/classes/messages") {
+  //response.writeHead(statusCode, headers);
+  var urlRegex = RegExp('\/1\/classes\/.+');
+  if(urlRegex.test(request.url)) {
     if (request.method === "OPTIONS") {
+      response.writeHead(statusCode, headers);
       response.end();
     }
     else if (request.method === 'POST') {
@@ -26,11 +28,15 @@ var handleRequest = function(request, response) {
       request.on('end', function() {
         var text = JSON.parse(body);
         messages.results.push(text);
+        statusCode = 201;
+        response.writeHead(statusCode, headers);
         response.end();
       });
     } else if (request.method === 'GET') {
+      statusCode = 200;
+      response.writeHead(statusCode, headers);
       if (!messages.results.length) {
-        response.end();
+        response.end('[]');
       } else {
       console.log(messages.results);
       response.end(JSON.stringify(messages));
@@ -38,7 +44,9 @@ var handleRequest = function(request, response) {
       }
     }
   } else {
-    response.end('you didnt do anything');
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
   }
 
 };
@@ -56,4 +64,5 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 // Seconds.
 };
 
-module.exports = handleRequest;
+// module.exports = handleRequest;
+exports.handleRequest = handleRequest;
