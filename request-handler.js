@@ -7,16 +7,13 @@
 /* This is the callback function that will be called each time a
  * client (i.e.. a web browser) makes a request to our server. */
 //var results = require("./basic-server.js");
-var results = [];
+var messages = {results: []};
 var handleRequest = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
   var statusCode = 200;
-  //console.log(request.data);
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "text/plain";
   response.writeHead(statusCode, headers);
-  // if request.method is POST --> save to results
-  // if request.method is GET --> return results
   if(request.url === "/1/classes/messages") {
     if (request.method === "OPTIONS") {
       response.end();
@@ -28,14 +25,15 @@ var handleRequest = function(request, response) {
       });
       request.on('end', function() {
         var text = JSON.parse(body);
-        results.push(text);
+        messages.results.push(text);
         response.end();
       });
     } else if (request.method === 'GET') {
-      if (!results.length) {
+      if (!messages.results.length) {
         response.end();
       } else {
-      response.end(results[0]);
+      console.log(messages.results);
+      response.end(JSON.stringify(messages));
       //response.end();
       }
     }
