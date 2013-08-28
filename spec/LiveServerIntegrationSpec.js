@@ -22,7 +22,6 @@ describe("Live Node Chat Server", function() {
              request("http://127.0.0.1:8080/1/classes/messages",
                      function(error, response, body) {
                        var messageLog = JSON.parse(body);
-                       console.log(messageLog);
                        expect(messageLog.results[0].username).toEqual("Jono");
                        expect(messageLog.results[0].message).toEqual("Do my bidding!");
                        done();

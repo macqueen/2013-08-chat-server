@@ -8,17 +8,46 @@
  * client (i.e.. a web browser) makes a request to our server. */
 //var results = require("./basic-server.js");
 var messages = {results: []};
+var fs = require("fs");
 var handleRequest = function(request, response) {
+
   console.log("Serving request type " + request.method + " for url " + request.url);
   var statusCode = 200;
   var headers = defaultCorsHeaders;
-  var urlRegex = RegExp('\/1\/classes\/.+');
-  if(urlRegex.test(request.url)) {
+  var roomRegex = RegExp('\/1\/classes\/.+');
+  var publicRegex = RegExp('\/public\/.+');
+
+  if(request.url === '/'){
+    fs.readFile('index.html', function(error, content){
+      headers = defaultCorsHeaders;
+      headers['Content-Type'] = 'text/html; charset=UTF-8"';
+      response.writeHead(200, headers);
+      response.write(content);
+      response.end();
+    })
+  }
+  else if (publicRegex.test(request.url)) {
+    var fileName = request.url.split('/').pop();
+    console.log(__dirname);
+    fs.readFile(__dirname + '/public/' + fileName, function(error, content) {
+      headers = defaultCorsHeaders;
+      if (fileName.split('.').pop() === 'css') {
+        headers['Content-Type'] = 'text/css';
+      } else {
+        headers['Content-Type'] = 'application/javascript';
+      }
+      response.writeHead(200, headers);
+      response.end(content);
+    })
+  }
+
+  else if(roomRegex.test(request.url)) {
     if (request.method === "OPTIONS") {
       response.writeHead(statusCode, headers);
       response.end();
     }
     else if (request.method === 'POST') {
+      headers['Content-Type'] = 'application/json';
       var body = '';
       request.on('data', function(data) {
         body += data;
@@ -31,6 +60,7 @@ var handleRequest = function(request, response) {
         response.end();
       });
     } else if (request.method === 'GET') {
+      headers['Content-Type'] = 'application/json';
       statusCode = 200;
       response.writeHead(statusCode, headers);
       if (!messages.results.length) {
